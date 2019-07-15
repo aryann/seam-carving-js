@@ -10,6 +10,18 @@ function clamp(val: number, range: [number, number]): number {
     return val;
 }
 
+function argmin(values: number[]): number {
+    let min = values[0];
+    let minIdx = 0;
+    for (let i = 1; i < values.length; i++) {
+        if (values[i] < min) {
+            min = values[i];
+            minIdx = i;
+        }
+    }
+    return minIdx;
+}
+
 class Uint16Array2D {
     private readonly data: Uint16Array;
     private min: number = 0;
@@ -67,6 +79,28 @@ function computeEnergy(data: ImageArray): Uint16Array2D {
     return energy;
 }
 
+function computeSeamCosts(energy: Uint16Array2D): [Uint16Array2D, Uint16Array2D] {
+    let costs = new Uint16Array2D(energy.width, energy.height);
+    let costIndices = new Uint16Array2D(energy.width, energy.height);
+
+    for (let col = 0; col < costs.width; col++) {
+        costs.set(0, col, energy.get(0, col));
+        costIndices.set(0, col, -1);
+    }
+    for (let row = 1; row < costs.height; row++) {
+        for (let col = 0; col < costs.width; col++) {
+            const candidates = [
+                costs.get(row - 1, clamp(col - 1, [0, costs.width - 1])),
+                costs.get(row - 1, col),
+                costs.get(row - 1, clamp(col + 1, [0, costs.width - 1])),
+            ]
+            costs.set(row, col, energy.get(row, col) + Math.min(...candidates));
+            costIndices.set(row, col,
+                col + argmin(candidates) - (col == 0 ? 0 : 1));
+        }
+    }
+    return [costs, costIndices];
+}
 
 class ImageArray {
     constructor(
@@ -118,21 +152,26 @@ img.onload = function () {
     context.canvas.width = WIDTH;
 
     context.drawImage(img, 0, 0, context.canvas.width, context.canvas.height);
-    let imageArray = new ImageArray(
+    const imageArray = new ImageArray(
         context.getImageData(0, 0, context.canvas.width, context.canvas.height).data,
         context.canvas.width,
         context.canvas.height
     )
 
-    let energy = computeEnergy(imageArray);
-
+    const energy = computeEnergy(imageArray);
     const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
     const energyContext = energyCanvas.getContext("2d");
     energyContext.canvas.height = img.height * (WIDTH / img.width);
     energyContext.canvas.width = WIDTH;
     energyContext.putImageData(energy.asImageArray().getImageData(), 0, 0);
 
+    const seamCosts = computeSeamCosts(energy);
+    const costs = seamCosts[0];
     const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
+    const costsContext = costsCanvas.getContext("2d");
+    costsContext.canvas.height = img.height * (WIDTH / img.width);
+    costsContext.canvas.width = WIDTH;
+    costsContext.putImageData(costs.asImageArray().getImageData(), 0, 0);
 };
 
 
