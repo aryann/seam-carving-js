@@ -258,6 +258,7 @@ const VIRIDIS: [number, number, number][] = [
     [0.993248, 0.906157, 0.143936],
 ]
 
+// See matplotlib.colors.Normalize for a better way to normalize data.
 class ColorMap {
     constructor(readonly colors: [number, number, number][]) { }
 

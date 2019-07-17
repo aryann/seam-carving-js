@@ -1,4 +1,6 @@
-const WIDTH = 1000;
+import { COLOR_MAP } from './colormap';
+
+const WIDTH = 700;
 
 function clamp(val: number, range: [number, number]): number {
     if (val < range[0]) {
@@ -10,7 +12,7 @@ function clamp(val: number, range: [number, number]): number {
     return val;
 }
 
-function argmin(values: number[]): number {
+function argmin(values: number[] | Uint32Array): number {
     let min = values[0];
     let minIdx = 0;
     for (let i = 1; i < values.length; i++) {
@@ -22,13 +24,13 @@ function argmin(values: number[]): number {
     return minIdx;
 }
 
-class Uint16Array2D {
-    private readonly data: Uint16Array;
+class Uint32Array2D {
+    private readonly data: Uint32Array;
     private min: number = 0;
     private max: number = 0;
 
     constructor(public readonly width: number, public readonly height: number) {
-        this.data = new Uint16Array(width * height);
+        this.data = new Uint32Array(width * height);
     }
 
     public get(row: number, col: number): number {
@@ -41,22 +43,26 @@ class Uint16Array2D {
         this.data[row * this.width + col] = val;
     }
 
+    public getRow(row: number): Uint32Array {
+        return this.data.slice(row * this.width, (row + 1) * this.width);
+    }
+
     public asImageArray(): ImageArray {
         let result = new ImageArray(
             new Uint8ClampedArray(this.width * this.height * 4),
             this.width, this.height);
         for (let row = 0; row < this.height; row++) {
             for (let col = 0; col < this.width; col++) {
-                const color = 255 - this.get(row, col) / this.max * 255;
-                result.set(row, col, [color, color, color]);
+                const color = COLOR_MAP.get(this.get(row, col) / this.max);
+                result.set(row, col, color);
             }
         }
         return result;
     }
 }
 
-function computeEnergy(data: ImageArray): Uint16Array2D {
-    let energy = new Uint16Array2D(data.width, data.height);
+function computeEnergy(data: ImageArray): Uint32Array2D {
+    let energy = new Uint32Array2D(data.width, data.height);
     for (let row = 0; row < data.height; row++) {
         for (let col = 0; col < data.width; col++) {
             const leftRgb = data.getClamped(row, col - 1);
@@ -73,15 +79,15 @@ function computeEnergy(data: ImageArray): Uint16Array2D {
                 vertical += (upRgb[i] - downRgb[i]) ** 2;
             }
 
-            energy.set(row, col, horizontal + vertical);
+            energy.set(row, col, Math.sqrt(horizontal + vertical));
         }
     }
     return energy;
 }
 
-function computeSeamCosts(energy: Uint16Array2D): [Uint16Array2D, Uint16Array2D] {
-    let costs = new Uint16Array2D(energy.width, energy.height);
-    let costIndices = new Uint16Array2D(energy.width, energy.height);
+function computeSeamCosts(energy: Uint32Array2D): [Uint32Array2D, Uint32Array2D] {
+    let costs = new Uint32Array2D(energy.width, energy.height);
+    let costIndices = new Uint32Array2D(energy.width, energy.height);
 
     for (let col = 0; col < costs.width; col++) {
         costs.set(0, col, energy.get(0, col));
@@ -100,6 +106,20 @@ function computeSeamCosts(energy: Uint16Array2D): [Uint16Array2D, Uint16Array2D]
         }
     }
     return [costs, costIndices];
+}
+
+function findSeamIndices(costs: Uint32Array2D, costIndices: Uint32Array2D): number[] {
+    let result: number[] = [];
+
+    let lastRow = costs.getRow(costs.height - 1);
+    let currIdx = argmin(lastRow);
+    result.push(currIdx);
+
+    for (let row = costIndices.height - 1; row > 0; row--) {
+        currIdx = costIndices.get(row, currIdx);
+        result.push(currIdx);
+    }
+    return result.reverse();
 }
 
 class ImageArray {
@@ -128,6 +148,33 @@ class ImageArray {
         this.data[start + 3] = 255; // alpha
     }
 
+    public colorSeam(seamIndices: number[]): void {
+        for (let row = 0; row < this.height; row++) {
+            const col = seamIndices[row];
+            this.set(row, col, [255, 0, 0]);
+        }
+    }
+
+    public removeSeam(seamIndices: number[]): ImageArray {
+        let result = new ImageArray(
+            new Uint8ClampedArray((this.width - 1) * this.height * 4),
+            this.width - 1,
+            this.height);
+
+        for (let row = 0; row < this.height; row++) {
+            let offset = 0;
+            for (let col = 0; col < this.width; col++) {
+                if (col == seamIndices[row]) {
+                    offset = 1;
+                    continue;  // This is a seam pixel; don't copy it!
+                }
+                result.set(row, col - offset, this.get(row, col));
+            }
+        }
+
+        return result;
+    }
+
     public getImageData(): ImageData {
         return new ImageData(this.data, this.width, this.height);
     }
@@ -142,37 +189,43 @@ class ImageArray {
     }
 }
 
-
 const img = new Image();
 img.src = "broadway-tower.jpg";
 img.onload = function () {
+    const reduceButton: HTMLAnchorElement = document.getElementById("reduce-button") as
+        HTMLAnchorElement;
+
     const canvas: HTMLCanvasElement = document.getElementById("original") as HTMLCanvasElement;
     const context = canvas.getContext("2d");
     context.canvas.height = img.height * (WIDTH / img.width);
     context.canvas.width = WIDTH;
 
     context.drawImage(img, 0, 0, context.canvas.width, context.canvas.height);
-    const imageArray = new ImageArray(
+    let imageArray = new ImageArray(
         context.getImageData(0, 0, context.canvas.width, context.canvas.height).data,
         context.canvas.width,
         context.canvas.height
     )
 
-    const energy = computeEnergy(imageArray);
-    const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
-    const energyContext = energyCanvas.getContext("2d");
-    energyContext.canvas.height = img.height * (WIDTH / img.width);
-    energyContext.canvas.width = WIDTH;
-    energyContext.putImageData(energy.asImageArray().getImageData(), 0, 0);
+    reduceButton.onclick = function () {
+        const energy = computeEnergy(imageArray);
+        const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
+        const energyContext = energyCanvas.getContext("2d");
+        energyContext.canvas.height = img.height * (WIDTH / img.width);
+        energyContext.canvas.width = WIDTH;
+        energyContext.putImageData(energy.asImageArray().getImageData(), 0, 0);
 
-    const seamCosts = computeSeamCosts(energy);
-    const costs = seamCosts[0];
-    const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
-    const costsContext = costsCanvas.getContext("2d");
-    costsContext.canvas.height = img.height * (WIDTH / img.width);
-    costsContext.canvas.width = WIDTH;
-    costsContext.putImageData(costs.asImageArray().getImageData(), 0, 0);
+        const seamCosts = computeSeamCosts(energy);
+        const costs = seamCosts[0];
+        const constIndices = seamCosts[1];
+        const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
+        const costsContext = costsCanvas.getContext("2d");
+        costsContext.canvas.height = img.height * (WIDTH / img.width);
+        costsContext.canvas.width = WIDTH;
+        costsContext.putImageData(costs.asImageArray().getImageData(), 0, 0);
+
+        imageArray = imageArray.removeSeam(findSeamIndices(costs, constIndices));
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(imageArray.getImageData(), 0, 0);
+    };
 };
-
-
-
