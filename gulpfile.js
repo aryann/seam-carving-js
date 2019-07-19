@@ -27,18 +27,19 @@ var watchedBrowserify = watchify(browserify({
 
 function bundle() {
     return watchedBrowserify
-    .plugin(tsify)
-    .transform('babelify', {
-        presets: ['es2015'],
-        extensions: ['.ts']
-    })
-    .bundle()
-    .pipe(source('bundle.js'))
-    .pipe(buffer())
-    //.pipe(sourcemaps.init({loadMaps: true}))
-    //.pipe(uglify())
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('dist'));
+        .plugin(tsify)
+        /*
+        .transform('babelify', {
+            presets: ['es2015'],
+            extensions: ['.ts']
+        })*/
+        .bundle()
+        .pipe(source('bundle.js'))     
+        .pipe(buffer())
+        //.pipe(sourcemaps.init({loadMaps: true}))
+        //.pipe(uglify())
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('dist'));
 }
 
 gulp.task('connect', function () {

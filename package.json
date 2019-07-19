@@ -25,5 +25,7 @@
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "gulp-fs-cache": "^0.1.0"
+  }
 }

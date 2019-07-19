@@ -1,6 +1,6 @@
 import { COLOR_MAP } from './colormap';
 
-const WIDTH = 700;
+const WIDTH = 300;
 
 function clamp(val: number, range: [number, number]): number {
     if (val < range[0]) {
@@ -195,19 +195,25 @@ img.onload = function () {
     const reduceButton: HTMLAnchorElement = document.getElementById("reduce-button") as
         HTMLAnchorElement;
 
-    const canvas: HTMLCanvasElement = document.getElementById("original") as HTMLCanvasElement;
-    const context = canvas.getContext("2d");
-    context.canvas.height = img.height * (WIDTH / img.width);
-    context.canvas.width = WIDTH;
+    const original: HTMLCanvasElement = document.getElementById("original") as HTMLCanvasElement;
+    const originalContext = original.getContext("2d");
+    originalContext.canvas.height = img.height * (WIDTH / img.width);
+    originalContext.canvas.width = WIDTH;
+    originalContext.drawImage(img, 0, 0, originalContext.canvas.width, originalContext.canvas.height);
 
-    context.drawImage(img, 0, 0, context.canvas.width, context.canvas.height);
+    const modified: HTMLCanvasElement = document.getElementById("resized") as HTMLCanvasElement;
+    const modifiedContext = modified.getContext("2d");
+    modifiedContext.canvas.height = img.height * (WIDTH / img.width);
+    modifiedContext.canvas.width = WIDTH;
+
+    modifiedContext.drawImage(img, 0, 0, modifiedContext.canvas.width, modifiedContext.canvas.height);
     let imageArray = new ImageArray(
-        context.getImageData(0, 0, context.canvas.width, context.canvas.height).data,
-        context.canvas.width,
-        context.canvas.height
+        modifiedContext.getImageData(0, 0, modifiedContext.canvas.width, modifiedContext.canvas.height).data,
+        modifiedContext.canvas.width,
+        modifiedContext.canvas.height
     )
 
-    reduceButton.onclick = function () {
+    let reduceFn = function () {
         const energy = computeEnergy(imageArray);
         const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
         const energyContext = energyCanvas.getContext("2d");
@@ -225,7 +231,22 @@ img.onload = function () {
         costsContext.putImageData(costs.asImageArray().getImageData(), 0, 0);
 
         imageArray = imageArray.removeSeam(findSeamIndices(costs, constIndices));
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(imageArray.getImageData(), 0, 0);
+        modifiedContext.clearRect(0, 0, modified.width, modified.height);
+        modifiedContext.putImageData(imageArray.getImageData(), 0, 0);
+    };
+
+    reduceButton.onclick = reduceFn;
+
+    let reduceHandler: number = -1;
+    reduceButton.onmousedown = function (event) {
+        if (reduceHandler == -1) {
+            reduceHandler = setInterval(reduceFn, 100);
+        }
+    };
+    reduceButton.onmouseup = function (event) {
+        if (reduceHandler != -1) {
+            clearInterval(reduceHandler);
+            reduceHandler = -1;
+        }
     };
 };
