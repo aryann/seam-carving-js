@@ -1,6 +1,6 @@
 import { COLOR_MAP } from "./colormap";
 
-const WIDTH = 300;
+const WIDTH = 400;
 
 function clamp(val: number, range: [number, number]): number {
   if (val < range[0]) {

@@ -9,33 +9,47 @@
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
+            padding: 0;
+            margin:0;
+        }
+
+        header {
+            background-color: lightyellow;
+            padding: 10px;
+        }
+
+        h1 {
+            margin: 0;
         }
 
         .container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            max-width: 1000px;
+            grid-template-columns: auto auto;
         }
 
         .cell {
             flex-grow: 0.25;
         }
 
-        @media (max-width: 720px) {
-            .cell {
-                width: 50%;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .cell {
-                width: 100%;
+        @media (max-width: 600px) {
+            .container {
+                grid-template-columns: 400px;
             }
         }
     </style>
 </head>
 
 <body>
+    <header>
+    <h1>Seam Carving Demo</h1>
+</header>
+
+<article>
+    <p>This is a demo of <a href="https://en.wikipedia.org/wiki/Seam_carving">seam carving</a>, and algorithm for content-aware image resizing.</p>
+
     <p><a href="#" id="reduce-button">Decrease Width</a></p>
+</article>
 
     <div class="container">
         <div class="cell">

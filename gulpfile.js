@@ -20,7 +20,7 @@ gulp.task('copy-html', function () {
 var watchedBrowserify = watchify(browserify({
     basedir: '.',
     debug: true,
-    entries: ['src/main.ts'],
+    entries: ['src/main.ts', 'src/colormap.ts'],
     cache: {},
     packageCache: {}
 }));
