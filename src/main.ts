@@ -189,6 +189,46 @@ class ImageArray {
     }
 }
 
+interface CanvasContext {
+    original: CanvasRenderingContext2D;
+    modified: CanvasRenderingContext2D;
+    energy: CanvasRenderingContext2D;
+    seamCosts: CanvasRenderingContext2D;
+}
+
+class State {
+    private currentImage: ImageArray;
+    private energy: Uint32Array2D;
+    private seamCosts: [Uint32Array2D, Uint32Array2D];
+
+    constructor(private readonly originalImage: ImageArray, private readonly canvasContext: CanvasContext) {
+        this.currentImage = originalImage;
+        this.recompute();
+    }
+
+    public draw(): void {
+        this.canvasContext.original.putImageData(this.originalImage.getImageData(), 0, 0);
+        this.canvasContext.modified.clearRect(0, 0, this.originalImage.width, this.originalImage.height);
+        this.canvasContext.modified.putImageData(this.currentImage.getImageData(), 0, 0);
+        this.canvasContext.energy.clearRect(0, 0, this.originalImage.width, this.originalImage.height);
+        this.canvasContext.energy.putImageData(this.energy.asImageArray().getImageData(), 0, 0);
+        this.canvasContext.seamCosts.clearRect(0, 0, this.originalImage.width, this.originalImage.height);
+        this.canvasContext.seamCosts.putImageData(this.seamCosts[0].asImageArray().getImageData(), 0, 0);
+    }
+
+    public reduceWidthByOne() {
+        const costs: Uint32Array2D = this.seamCosts[0];
+        const costIndices: Uint32Array2D = this.seamCosts[1];
+        this.currentImage = this.currentImage.removeSeam(findSeamIndices(costs, costIndices));
+        this.recompute();
+    }
+
+    private recompute(): void {
+        this.energy = computeEnergy(this.currentImage);
+        this.seamCosts = computeSeamCosts(this.energy);
+    }
+}
+
 const img = new Image();
 img.src = "broadway-tower.jpg";
 img.onload = function () {
@@ -206,33 +246,28 @@ img.onload = function () {
     modifiedContext.canvas.height = img.height * (WIDTH / img.width);
     modifiedContext.canvas.width = WIDTH;
 
-    modifiedContext.drawImage(img, 0, 0, modifiedContext.canvas.width, modifiedContext.canvas.height);
-    let imageArray = new ImageArray(
-        modifiedContext.getImageData(0, 0, modifiedContext.canvas.width, modifiedContext.canvas.height).data,
-        modifiedContext.canvas.width,
-        modifiedContext.canvas.height
+    const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
+    const energyContext = energyCanvas.getContext("2d");
+    energyContext.canvas.height = img.height * (WIDTH / img.width);
+    energyContext.canvas.width = WIDTH;
+
+    const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
+    const costsContext = costsCanvas.getContext("2d");
+    costsContext.canvas.height = img.height * (WIDTH / img.width);
+    costsContext.canvas.width = WIDTH;
+
+    const image: ImageArray = new ImageArray(
+        originalContext.getImageData(0, 0, originalContext.canvas.width, originalContext.canvas.height).data,
+        originalContext.canvas.width,
+        originalContext.canvas.height
     )
 
+    const state: State = new State(image, { original: originalContext, modified: modifiedContext, energy: energyContext, seamCosts: costsContext });
+    state.draw();
+
     let reduceFn = function () {
-        const energy = computeEnergy(imageArray);
-        const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
-        const energyContext = energyCanvas.getContext("2d");
-        energyContext.canvas.height = img.height * (WIDTH / img.width);
-        energyContext.canvas.width = WIDTH;
-        energyContext.putImageData(energy.asImageArray().getImageData(), 0, 0);
-
-        const seamCosts = computeSeamCosts(energy);
-        const costs = seamCosts[0];
-        const constIndices = seamCosts[1];
-        const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
-        const costsContext = costsCanvas.getContext("2d");
-        costsContext.canvas.height = img.height * (WIDTH / img.width);
-        costsContext.canvas.width = WIDTH;
-        costsContext.putImageData(costs.asImageArray().getImageData(), 0, 0);
-
-        imageArray = imageArray.removeSeam(findSeamIndices(costs, constIndices));
-        modifiedContext.clearRect(0, 0, modified.width, modified.height);
-        modifiedContext.putImageData(imageArray.getImageData(), 0, 0);
+        state.reduceWidthByOne();
+        state.draw();
     };
 
     reduceButton.onclick = reduceFn;
