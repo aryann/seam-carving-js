@@ -1,6 +1,7 @@
 import { COLOR_MAP } from "./colormap";
 
 const WIDTH = 400;
+const SEAM_FILL_STYLE = "rgba(255, 255, 255, 255)";
 
 function clamp(val: number, range: [number, number]): number {
   if (val < range[0]) {
@@ -209,6 +210,7 @@ class State {
   private currentImage: ImageArray;
   private energy: Uint32Array2D;
   private seamCosts: [Uint32Array2D, Uint32Array2D];
+  private currSeamIndices: number[];
 
   constructor(
     private readonly originalImage: ImageArray,
@@ -235,6 +237,7 @@ class State {
       0,
       0
     );
+
     this.canvasContext.energy.clearRect(
       0,
       0,
@@ -246,6 +249,12 @@ class State {
       0,
       0
     );
+    this.canvasContext.energy.fillStyle = SEAM_FILL_STYLE;
+    for (let row = 0; row < this.currSeamIndices.length; row++) {
+      const col: number = this.currSeamIndices[row];
+      this.canvasContext.energy.fillRect(col, row, 1, 1);
+    }
+
     this.canvasContext.seamCosts.clearRect(
       0,
       0,
@@ -259,18 +268,22 @@ class State {
     );
   }
 
-  public reduceWidthByOne() {
-    const costs: Uint32Array2D = this.seamCosts[0];
-    const costIndices: Uint32Array2D = this.seamCosts[1];
-    this.currentImage = this.currentImage.removeSeam(
-      findSeamIndices(costs, costIndices)
-    );
+  public reduceWidthByOne(): void {
+    this.currentImage = this.currentImage.removeSeam(this.currSeamIndices);
+    this.recompute();
+  }
+
+  public reset(): void {
+    this.currentImage = this.originalImage;
     this.recompute();
   }
 
   private recompute(): void {
     this.energy = computeEnergy(this.currentImage);
     this.seamCosts = computeSeamCosts(this.energy);
+    const costs: Uint32Array2D = this.seamCosts[0];
+    const costIndices: Uint32Array2D = this.seamCosts[1];
+    this.currSeamIndices = findSeamIndices(costs, costIndices);
   }
 }
 
@@ -279,6 +292,9 @@ img.src = "broadway-tower.jpg";
 img.onload = function() {
   const reduceButton: HTMLAnchorElement = document.getElementById(
     "reduce-button"
+  ) as HTMLAnchorElement;
+  const resetButton: HTMLAnchorElement = document.getElementById(
+    "reset-button"
   ) as HTMLAnchorElement;
 
   const original: HTMLCanvasElement = document.getElementById(
@@ -349,5 +365,10 @@ img.onload = function() {
       clearInterval(reduceHandler);
       reduceHandler = -1;
     }
+  };
+
+  resetButton.onclick = function(event) {
+    state.reset();
+    state.draw();
   };
 };

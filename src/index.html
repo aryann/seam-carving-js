@@ -20,8 +20,17 @@
         padding: 10px;
       }
 
-      h1 {
+      article, .container {
+          max-width: 1000px;
+          padding: 10px;
+      }
+
+      h1, h2 {
         margin: 0;
+      }
+
+      li {
+          display: inline-block;
       }
 
       .container {
@@ -54,7 +63,11 @@
         an algorithm for content-aware image resizing.
       </p>
 
-      <p><a href="#" id="reduce-button">Decrease Width</a></p>
+      <p>
+          <ul>
+            <li><a href="#" id="reduce-button">Decrease Width</a></li>
+            <li><a href="#" id="reset-button">Reset</a></li>
+          </ul></p>
     </article>
 
     <div class="container">
