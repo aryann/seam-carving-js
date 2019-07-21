@@ -12,35 +12,39 @@
       body {
         font-family: "Open Sans", sans-serif;
         padding: 0;
-        margin: 0;
+        margin: auto;
+        max-width: 900px;
       }
 
       header {
-        background-color: lightyellow;
-        padding: 10px;
+        padding: 0 10px;
       }
 
-      article, .container {
-          max-width: 1000px;
-          padding: 10px;
-      }
-
-      h1, h2 {
-        margin: 0;
+      article {
+        padding: 0 10px;
       }
 
       li {
-          display: inline-block;
+        display: inline-block;
       }
 
       .container {
         display: grid;
-        max-width: 1000px;
         grid-template-columns: auto auto;
       }
 
       .cell {
         flex-grow: 0.25;
+        margin: 0 5px;
+        width: 400px;
+      }
+
+      .cell-header {
+        background-color: aliceblue;
+        border-width: 1px 1px 0 1px;
+        border-color: #ccc;
+        border-style: solid;
+        padding: 5px;
       }
 
       @media (max-width: 600px) {
@@ -63,32 +67,48 @@
         an algorithm for content-aware image resizing.
       </p>
 
-      <p>
-          <ul>
-            <li><a href="#" id="reduce-button">Decrease Width</a></li>
-            <li><a href="#" id="reset-button">Reset</a></li>
-          </ul></p>
+      <ul>
+        <li><a href="#" id="reduce-button">Decrease Width</a></li>
+        <li><a href="#" id="reset-button">Reset</a></li>
+      </ul>
     </article>
 
     <div class="container">
       <div class="cell">
-        <h2>Original</h2>
-        <canvas id="original"></canvas>
+        <div class="cell-header">
+          Original
+        </div>
+        <div class="cell-body">
+          <canvas id="original"></canvas>
+        </div>
       </div>
 
       <div class="cell">
-        <h2>Resized</h2>
-        <canvas id="resized"></canvas>
+        <div class="cell-header">
+          Resized
+        </div>
+        <div class="cell-body">
+          <canvas id="resized"></canvas>
+        </div>
       </div>
 
       <div class="cell">
-        <h2>Energy</h2>
-        <canvas id="energy"></canvas>
+        <div class="cell-header">
+          Energy
+        </div>
+        <div class="cell-body">
+          <canvas id="energy"></canvas>
+        </div>
       </div>
 
       <div class="cell">
-        <h2>Seam Costs</h2>
-        <canvas id="costs"></canvas>
+        <div class="cell-header">
+          Seam Costs
+        </div>
+
+        <div class="cell-body">
+          <canvas id="costs"></canvas>
+        </div>
       </div>
     </div>
 

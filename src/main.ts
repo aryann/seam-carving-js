@@ -226,7 +226,9 @@ class State {
       0,
       0
     );
-    this.canvasContext.modified.clearRect(
+
+    this.canvasContext.modified.fillStyle = "lightgrey";
+    this.canvasContext.modified.fillRect(
       0,
       0,
       this.originalImage.width,
@@ -238,7 +240,8 @@ class State {
       0
     );
 
-    this.canvasContext.energy.clearRect(
+    this.canvasContext.energy.fillStyle = "lightgrey";
+    this.canvasContext.energy.fillRect(
       0,
       0,
       this.originalImage.width,
@@ -255,7 +258,8 @@ class State {
       this.canvasContext.energy.fillRect(col, row, 1, 1);
     }
 
-    this.canvasContext.seamCosts.clearRect(
+    this.canvasContext.seamCosts.fillStyle = "lightgrey";
+    this.canvasContext.seamCosts.fillRect(
       0,
       0,
       this.originalImage.width,
