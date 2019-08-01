@@ -294,10 +294,12 @@ class State {
 const img = new Image();
 img.src = "broadway-tower.jpg";
 img.onload = function() {
-  const upload: HTMLInputElement = document.getElementById("file") as HTMLInputElement;
+  const upload: HTMLInputElement = document.getElementById(
+    "file"
+  ) as HTMLInputElement;
   upload.addEventListener("change", function(event) {
     const file = this.files[0];
-    if (!file.type.match('image.*')) {
+    if (!file.type.match("image.*")) {
       alert("Please upload an image file.");
     }
 
@@ -307,6 +309,13 @@ img.onload = function() {
     };
     reader.readAsDataURL(file);
   });
+
+  const uploadButton: HTMLAnchorElement = document.getElementById(
+    "upload-button"
+  ) as HTMLAnchorElement;
+  uploadButton.onclick = function(event) {
+    upload.click();
+  };
 
   const reduceButton: HTMLAnchorElement = document.getElementById(
     "reduce-button"

@@ -22,14 +22,15 @@
       }
 
       header {
-        padding: 0 10px;
+        padding: 10px 10px 0 10px;
       }
 
       article {
         padding: 0 10px;
       }
 
-      p, ul {
+      p,
+      ul {
         margin: 1em 0;
       }
 
@@ -63,6 +64,10 @@
         border-style: solid;
         padding: 5px;
       }
+
+      #file {
+        display: none;
+      }
     </style>
   </head>
 
@@ -81,7 +86,10 @@
       <ul>
         <li><a href="#" id="reduce-button">Decrease Width</a></li>
         <li><a href="#" id="reset-button">Reset</a></li>
-        <li><input type="file" id="file" name="file" /></li>
+        <li>
+          <input type="file" id="file" name="file" />
+          <a href="#" id="upload-button">Upload Your Own Image</a>
+        </li>
       </ul>
     </article>
 
