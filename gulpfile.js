@@ -34,7 +34,7 @@ function bundle() {
             extensions: ['.ts']
         })*/
         .bundle()
-        .pipe(source('bundle.js'))     
+        .pipe(source('bundle.js'))
         .pipe(buffer())
         //.pipe(sourcemaps.init({loadMaps: true}))
         //.pipe(uglify())
