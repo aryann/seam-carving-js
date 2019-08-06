@@ -38,12 +38,8 @@
         display: inline-block;
       }
 
-      li:after {
-        content: " - ";
-      }
-
-      li:last-of-type:after {
-        content: "";
+      button {
+          padding: 5px;
       }
 
       .container {
@@ -83,12 +79,12 @@
         an algorithm for content-aware image resizing.
       </p>
 
-      <ul>
-        <li><a href="#" id="reduce-button">Decrease Width</a></li>
-        <li><a href="#" id="reset-button">Reset</a></li>
+      <ul>Controls:
+        <li><button id="reduce-button">Decrease Width</button></li>
+        <li><button id="reset-button">Reset</button></li>
         <li>
           <input type="file" id="file" name="file" accept="image/*" />
-          <a href="#" id="upload-button">Upload Your Own Image</a>
+          <button id="upload-button">Upload Your Own Image</button>
         </li>
       </ul>
     </article>
