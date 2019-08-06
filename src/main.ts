@@ -384,7 +384,7 @@ img.onload = function() {
   let reduceHandler: number = -1;
   reduceButton.onmousedown = function(event) {
     if (reduceHandler == -1) {
-      reduceHandler = setInterval(reduceFn, 100);
+      reduceHandler = window.setInterval(reduceFn, 100);
     }
   };
   reduceButton.onmouseup = function(event) {
