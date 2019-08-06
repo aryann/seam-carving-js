@@ -8,6 +8,7 @@ const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
 const tsify = require("tsify");
 const uglify = require("gulp-uglify");
+const watch = require("gulp-watch");
 
 const browsertify = browserify({
   basedir: ".",
@@ -56,4 +57,6 @@ gulp.task("clean", function() {
 
 gulp.task("build", gulp.series("clean", "copy-static-files", compileJs));
 
-gulp.task("load", gulp.series("build", "connect"));
+gulp.task("load", gulp.parallel(function() { 
+  return watch("src/*", compileJs);
+}, "connect"));

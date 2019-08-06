@@ -16,6 +16,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
+    "gulp-watch": "^5.0.1",
     "ts-node": "^8.3.0",
     "tsify": "^4.0.1",
     "typescript": "~3.5.3",
