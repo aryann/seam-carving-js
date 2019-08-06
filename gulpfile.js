@@ -1,56 +1,59 @@
-var gulp = require('gulp');
-var browserify = require('browserify');
-var connect = require('gulp-connect');
-var source = require('vinyl-source-stream');
-var watchify = require('watchify');
-var tsify = require('tsify');
-var uglify = require('gulp-uglify');
-var fancy_log = require('fancy-log');
-var sourcemaps = require('gulp-sourcemaps');
-var buffer = require('vinyl-buffer');
-var paths = {
-    pages: ['src/*.html', 'src/*.jpg']
-};
+var browserify = require("browserify");
+var buffer = require("vinyl-buffer");
+var connect = require("gulp-connect");
+var del = require("del");
+var glob = require("glob");
+var gulp = require("gulp");
+var source = require("vinyl-source-stream");
+var sourcemaps = require("gulp-sourcemaps");
+var tsify = require("tsify");
+var uglify = require("gulp-uglify");
 
-gulp.task('copy-html', function () {
-    return gulp.src(paths.pages)
-        .pipe(gulp.dest('dist'));
+var browsertify = browserify({
+  basedir: ".",
+  debug: true,
+  entries: glob.sync("src/*.ts"),
+  cache: {},
+  packageCache: {}
 });
 
-var watchedBrowserify = watchify(browserify({
-    basedir: '.',
-    debug: true,
-    entries: ['src/main.ts', 'src/colormap.ts'],
-    cache: {},
-    packageCache: {}
-}));
+gulp.task("connect", function() {
+  connect.server({
+    root: "dist",
+    port: 8080,
+    livereload: true
+  });
+});
 
-function bundle() {
-    return watchedBrowserify
-        .plugin(tsify)
-        /*
-        .transform('babelify', {
-            presets: ['es2015'],
-            extensions: ['.ts']
-        })*/
-        .bundle()
-        .pipe(source('bundle.js'))
-        .pipe(buffer())
-        //.pipe(sourcemaps.init({loadMaps: true}))
-        //.pipe(uglify())
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('dist'));
+function compileJs() {
+  var buf = browsertify
+    .plugin(tsify)
+    .transform("babelify", {
+      presets: ["es2015"],
+      extensions: [".ts"]
+    })
+    .bundle()
+    .pipe(source("bundle.js"))
+    .pipe(buffer());
+
+  if (process.env.PROD) {
+    buf = buf.pipe(uglify());
+  } else {
+    buf = buf
+      .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(sourcemaps.write("./"));
+  }
+  return buf.pipe(gulp.dest("dist"));
 }
 
-
-gulp.task('connect', function () {
-    connect.server({
-        root: 'dist',
-        port: 8080,
-        livereload: true
-    });
+gulp.task("copy-static-files", function() {
+  return gulp.src(["src/*.html", "src/*.jpg"]).pipe(gulp.dest("dist"));
 });
 
-gulp.task('default', gulp.series(gulp.parallel('copy-html'), bundle, 'connect'));
-watchedBrowserify.on('update', bundle);
-watchedBrowserify.on('log', fancy_log);
+gulp.task("clean", function() {
+  return del("dist");
+});
+
+gulp.task("build", gulp.series("clean", "copy-static-files", compileJs));
+
+gulp.task("load", gulp.series("build", "connect"));
