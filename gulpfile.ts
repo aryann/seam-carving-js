@@ -1,15 +1,15 @@
-var browserify = require("browserify");
-var buffer = require("vinyl-buffer");
-var connect = require("gulp-connect");
-var del = require("del");
-var glob = require("glob");
-var gulp = require("gulp");
-var source = require("vinyl-source-stream");
-var sourcemaps = require("gulp-sourcemaps");
-var tsify = require("tsify");
-var uglify = require("gulp-uglify");
+const browserify = require("browserify");
+const buffer = require("vinyl-buffer");
+const connect = require("gulp-connect");
+const del = require("del");
+const glob = require("glob");
+const gulp = require("gulp");
+const source = require("vinyl-source-stream");
+const sourcemaps = require("gulp-sourcemaps");
+const tsify = require("tsify");
+const uglify = require("gulp-uglify");
 
-var browsertify = browserify({
+const browsertify = browserify({
   basedir: ".",
   debug: true,
   entries: glob.sync("src/*.ts"),
@@ -21,12 +21,12 @@ gulp.task("connect", function() {
   connect.server({
     root: "dist",
     port: 8080,
-    livereload: true
+    livereload: true,
   });
 });
 
 function compileJs() {
-  var buf = browsertify
+  let buf = browsertify
     .plugin(tsify)
     .transform("babelify", {
       presets: ["es2015"],
