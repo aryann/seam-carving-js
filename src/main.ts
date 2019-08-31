@@ -412,5 +412,5 @@ img.onload = function() {
   const container: HTMLDivElement = document.getElementsByClassName(
     "container"
   )[0] as HTMLDivElement;
-  container.style.display = null;
+  container.style.display = "block";
 };
