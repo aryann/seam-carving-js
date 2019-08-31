@@ -6,6 +6,9 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
+    <meta name="keywords" content="seam carving,content-aware resizing" />
+    <meta name="author" content="Aryan Naraghi" />
+
     <title>Seam Carving Demo</title>
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
@@ -46,7 +49,8 @@
         padding: 5px;
       }
 
-      canvas {
+      canvas,
+      img {
         display: block;
       }
 
@@ -61,15 +65,19 @@
         width: 400px;
       }
 
-      .cell-header {
+      .cell-body {
+        background-color: lightgrey;
+      }
+
+      .cell-footer {
         background-color: aliceblue;
         border-width: 0px 1px 1px 1px;
-        border-color: #ccc;
+        border-color: lightgrey;
         border-style: solid;
         padding: 5px;
       }
 
-      .cell-header p {
+      .cell-footer p {
         margin: 0;
         font-size: 0.9em;
       }
@@ -82,6 +90,24 @@
         display: none;
       }
     </style>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(["_setAccount", "UA-36868551-1"]);
+      _gaq.push(["_trackPageview"]);
+
+      (function() {
+        var ga = document.createElement("script");
+        ga.type = "text/javascript";
+        ga.async = true;
+        ga.src =
+          ("https:" == document.location.protocol
+            ? "https://ssl"
+            : "http://www") + ".google-analytics.com/ga.js";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   </head>
 
   <body>
@@ -91,13 +117,15 @@
 
     <article>
       <p>
-        This is a demo of
-        <a href="https://en.wikipedia.org/wiki/Seam_carving">seam carving</a>,
-        an algorithm for content-aware image resizing.
+        This is a demo of content-aware image resizing, also known as seam
+        carving. Press the Play button below to start the demo. To learn more
+        about seam carving,
+        <a href="https://en.wikipedia.org/wiki/Seam_carving"
+          >see its Wikipedia entry</a
+        >.
       </p>
 
       <ul>
-        Controls:
         <li><button id="reduce-button"></button></li>
         <li><button id="reset-button">Reset</button></li>
         <li>
@@ -112,10 +140,10 @@
         <div class="cell-body">
           <canvas id="resized"></canvas>
         </div>
-        <div class="cell-header">
+        <div class="cell-footer">
           <p>
-            <strong>Resized image.</strong> This is the result of resizing the
-            image using seam carving.
+            <strong>Content-aware resized image.</strong> This is the result of
+            resizing the image using seam carving.
           </p>
         </div>
       </div>
@@ -124,7 +152,7 @@
         <div class="cell-body">
           <canvas id="original"></canvas>
         </div>
-        <div class="cell-header">
+        <div class="cell-footer">
           <p>
             <strong>Original image.</strong> This is the original image, shown
             for comparison purposes.
@@ -136,7 +164,7 @@
         <div class="cell-body">
           <canvas id="energy"></canvas>
         </div>
-        <div class="cell-header">
+        <div class="cell-footer">
           <p>
             <strong>Energy.</strong> This is a measure of pixel importance; a
             pixel&rsquo;s importance is determined by the contrast with its
@@ -149,14 +177,21 @@
 
       <div class="cell">
         <div class="cell-body">
-          <canvas id="costs"></canvas>
+          <img id="naively-resized" />
         </div>
-        <div class="cell-header">
-          <p><strong>Seam costs.</strong></p>
+        <div class="cell-footer">
+          <p>
+            <strong>Naively-resized image.</strong> This is the result of the
+            browser resizing the image without regard to the image content. This
+            is shown for comparison purposes.
+          </p>
         </div>
       </div>
     </div>
 
+    <noscript
+      ><p>You must have JavaScript enabled for this demo to work.</p></noscript
+    >
     <script src="bundle.js"></script>
   </body>
 </html>

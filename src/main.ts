@@ -203,7 +203,7 @@ interface CanvasContext {
   original: CanvasRenderingContext2D;
   modified: CanvasRenderingContext2D;
   energy: CanvasRenderingContext2D;
-  seamCosts: CanvasRenderingContext2D;
+  naivelyResized: HTMLImageElement;
 }
 
 class State {
@@ -257,23 +257,11 @@ class State {
       const col: number = this.currSeamIndices[row];
       this.canvasContext.energy.fillRect(col, row, 1, 1);
     }
-
-    this.canvasContext.seamCosts.fillStyle = "lightgrey";
-    this.canvasContext.seamCosts.fillRect(
-      0,
-      0,
-      this.originalImage.width,
-      this.originalImage.height
-    );
-    this.canvasContext.seamCosts.putImageData(
-      this.seamCosts[0].asImageArray().getImageData(),
-      0,
-      0
-    );
   }
 
   public reduceWidthByOne(): void {
     this.currentImage = this.currentImage.removeSeam(this.currSeamIndices);
+    this.canvasContext.naivelyResized.width -= 1;
     this.recompute();
   }
 
@@ -312,18 +300,21 @@ img.onload = function() {
     "resized"
   ) as HTMLCanvasElement;
   const modifiedContext = modified.getContext("2d");
-  modifiedContext.canvas.height = img.height * (WIDTH / img.width);
+  const height = img.height * (WIDTH / img.width);
+  modifiedContext.canvas.height = height;
   modifiedContext.canvas.width = WIDTH;
 
   const energyCanvas = document.getElementById("energy") as HTMLCanvasElement;
   const energyContext = energyCanvas.getContext("2d");
-  energyContext.canvas.height = img.height * (WIDTH / img.width);
+  energyContext.canvas.height = height;
   energyContext.canvas.width = WIDTH;
 
-  const costsCanvas = document.getElementById("costs") as HTMLCanvasElement;
-  const costsContext = costsCanvas.getContext("2d");
-  costsContext.canvas.height = img.height * (WIDTH / img.width);
-  costsContext.canvas.width = WIDTH;
+  const naivelyResized: HTMLImageElement = document.getElementById(
+    "naively-resized"
+  ) as HTMLImageElement;
+  naivelyResized.src = original.toDataURL();
+  naivelyResized.height = height;
+  naivelyResized.width = WIDTH;
 
   const image: ImageArray = new ImageArray(
     originalContext.getImageData(
@@ -340,7 +331,7 @@ img.onload = function() {
     original: originalContext,
     modified: modifiedContext,
     energy: energyContext,
-    seamCosts: costsContext
+    naivelyResized: naivelyResized
   });
   state.draw();
 
