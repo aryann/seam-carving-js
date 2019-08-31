@@ -398,4 +398,10 @@ img.onload = function() {
     }
     upload.click();
   };
+
+  // Now that most of the JavaScript has executed, show the HTML elements.
+  const container: HTMLDivElement = document.getElementsByClassName(
+    "container"
+  )[0] as HTMLDivElement;
+  container.style.display = null;
 };
