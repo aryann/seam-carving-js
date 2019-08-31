@@ -271,6 +271,10 @@ class State {
     this.recompute();
   }
 
+  public resizingPossible(): boolean {
+    return this.currentImage.width > 3;
+  }
+
   private recompute(): void {
     this.energy = computeEnergy(this.currentImage);
     this.seamCosts = computeSeamCosts(this.energy);
@@ -337,8 +341,12 @@ img.onload = function() {
   state.draw();
 
   let reduceFn = function() {
-    state.reduceWidthByOne();
-    state.draw();
+    if (state.resizingPossible()) {
+      state.reduceWidthByOne();
+      state.draw();
+    } else {
+      clearInterval(reduceHandler);
+    }
   };
 
   const reduceButton: HTMLAnchorElement = document.getElementById(
