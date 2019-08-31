@@ -294,36 +294,6 @@ class State {
 const img = new Image();
 img.src = "broadway-tower.jpg";
 img.onload = function() {
-  const upload: HTMLInputElement = document.getElementById(
-    "file"
-  ) as HTMLInputElement;
-  upload.addEventListener("change", function(event) {
-    const file = this.files[0];
-    if (!file.type.match("image.*")) {
-      alert("Please upload an image file.");
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      img.src = (event.target as FileReader).result as string;
-    };
-    reader.readAsDataURL(file);
-  });
-
-  const uploadButton: HTMLAnchorElement = document.getElementById(
-    "upload-button"
-  ) as HTMLAnchorElement;
-  uploadButton.onclick = function(event) {
-    upload.click();
-  };
-
-  const reduceButton: HTMLAnchorElement = document.getElementById(
-    "reduce-button"
-  ) as HTMLAnchorElement;
-  const resetButton: HTMLAnchorElement = document.getElementById(
-    "reset-button"
-  ) as HTMLAnchorElement;
-
   const original: HTMLCanvasElement = document.getElementById(
     "original"
   ) as HTMLCanvasElement;
@@ -379,6 +349,13 @@ img.onload = function() {
     state.draw();
   };
 
+  const reduceButton: HTMLAnchorElement = document.getElementById(
+    "reduce-button"
+  ) as HTMLAnchorElement;
+  const resetButton: HTMLAnchorElement = document.getElementById(
+    "reset-button"
+  ) as HTMLAnchorElement;
+
   reduceButton.innerHTML = "Play";
   let reduceHandler: number = -1;
 
@@ -387,14 +364,47 @@ img.onload = function() {
       reduceHandler = window.setInterval(reduceFn, 100);
       reduceButton.innerHTML = "Pause";
     } else {
-      clearInterval(reduceHandler);
-      reduceHandler = -1;
-      reduceButton.innerHTML = "Play";
+      pause();
     }
   };
 
+  let pause = function() {
+    clearInterval(reduceHandler);
+    reduceHandler = -1;
+    reduceButton.innerHTML = "Play";
+  };
+
   resetButton.onclick = function(event) {
+    if (reduceHandler != -1) {
+      pause();
+    }
     state.reset();
     state.draw();
+  };
+
+  const upload: HTMLInputElement = document.getElementById(
+    "file"
+  ) as HTMLInputElement;
+  upload.addEventListener("change", function(event) {
+    const file = this.files[0];
+    if (!file.type.match("image.*")) {
+      alert("Please upload an image file.");
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      img.src = (event.target as FileReader).result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  const uploadButton: HTMLAnchorElement = document.getElementById(
+    "upload-button"
+  ) as HTMLAnchorElement;
+  uploadButton.onclick = function(event) {
+    if (reduceHandler != -1) {
+      pause();
+    }
+    upload.click();
   };
 };
