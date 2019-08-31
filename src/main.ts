@@ -379,18 +379,17 @@ img.onload = function() {
     state.draw();
   };
 
-  reduceButton.onclick = reduceFn;
-
+  reduceButton.innerHTML = "Play";
   let reduceHandler: number = -1;
-  reduceButton.onmousedown = function(event) {
+
+  reduceButton.onclick = function(event) {
     if (reduceHandler == -1) {
       reduceHandler = window.setInterval(reduceFn, 100);
-    }
-  };
-  reduceButton.onmouseup = function(event) {
-    if (reduceHandler != -1) {
+      reduceButton.innerHTML = "Pause";
+    } else {
       clearInterval(reduceHandler);
       reduceHandler = -1;
+      reduceButton.innerHTML = "Play";
     }
   };
 

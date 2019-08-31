@@ -46,6 +46,10 @@
         padding: 5px;
       }
 
+      canvas {
+        display: block;
+      }
+
       .container {
         display: flex;
         justify-content: flex-start;
@@ -53,16 +57,21 @@
       }
 
       .cell {
-        margin: 5px 5px 0 5px;
+        margin: 0 5px 5px 5px;
         width: 400px;
       }
 
       .cell-header {
         background-color: aliceblue;
-        border-width: 1px 1px 0 1px;
+        border-width: 0px 1px 1px 1px;
         border-color: #ccc;
         border-style: solid;
         padding: 5px;
+      }
+
+      .cell-header p {
+        margin: 0;
+        font-size: 0.9em;
       }
 
       #file {
@@ -85,7 +94,7 @@
 
       <ul>
         Controls:
-        <li><button id="reduce-button">Decrease Width</button></li>
+        <li><button id="reduce-button"></button></li>
         <li><button id="reset-button">Reset</button></li>
         <li>
           <input type="file" id="file" name="file" accept="image/*" />
@@ -96,39 +105,47 @@
 
     <div class="container">
       <div class="cell">
-        <div class="cell-header">
-          Original
-        </div>
-        <div class="cell-body">
-          <canvas id="original"></canvas>
-        </div>
-      </div>
-
-      <div class="cell">
-        <div class="cell-header">
-          Resized
-        </div>
         <div class="cell-body">
           <canvas id="resized"></canvas>
         </div>
+        <div class="cell-header">
+          <p><strong>Resized image.</strong> This is the result of resizing the image using seam carving.</p>
+        </div>
       </div>
 
       <div class="cell">
-        <div class="cell-header">
-          Energy
+        <div class="cell-body">
+          <canvas id="original"></canvas>
         </div>
+        <div class="cell-header">
+          <p>
+            <strong>Original image.</strong> This is the original image, shown
+            for comparison purposes.
+          </p>
+        </div>
+      </div>
+
+      <div class="cell">
         <div class="cell-body">
           <canvas id="energy"></canvas>
         </div>
+        <div class="cell-header">
+          <p>
+            <strong>Energy.</strong> This is a heatmap showing the importance of
+            the pixels in the image. The white, vertical seam is a path from the
+            top of the image to the bottom that traverses the least important
+            pixels. On each iteration of the algorithm, these are the pixels
+            that are removed.
+          </p>
+        </div>
       </div>
 
       <div class="cell">
-        <div class="cell-header">
-          Seam Costs
-        </div>
-
         <div class="cell-body">
           <canvas id="costs"></canvas>
+        </div>
+        <div class="cell-header">
+          <p><strong>Seam costs.</strong></p>
         </div>
       </div>
     </div>
