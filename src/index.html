@@ -57,7 +57,7 @@
       }
 
       .cell {
-        margin: 0 5px 5px 5px;
+        margin: 0 5px 10px 5px;
         width: 400px;
       }
 
@@ -113,7 +113,10 @@
           <canvas id="resized"></canvas>
         </div>
         <div class="cell-header">
-          <p><strong>Resized image.</strong> This is the result of resizing the image using seam carving.</p>
+          <p>
+            <strong>Resized image.</strong> This is the result of resizing the
+            image using seam carving.
+          </p>
         </div>
       </div>
 
@@ -135,11 +138,11 @@
         </div>
         <div class="cell-header">
           <p>
-            <strong>Energy.</strong> This is a heatmap showing the importance of
-            the pixels in the image. The white, vertical seam is a path from the
-            top of the image to the bottom that traverses the least important
-            pixels. On each iteration of the algorithm, these are the pixels
-            that are removed.
+            <strong>Energy.</strong> This is a measure of pixel importance; a
+            pixel&rsquo;s importance is determined by the contrast with its
+            neighboring pixels. The white seam is a vertical path that traverses
+            the least important pixels. On each iteration of the algorithm, this
+            seam is removed.
           </p>
         </div>
       </div>
