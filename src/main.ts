@@ -267,6 +267,7 @@ class State {
 
   public reset(): void {
     this.currentImage = this.originalImage;
+    this.canvasContext.naivelyResized.width = this.currentImage.width;
     this.recompute();
   }
 
