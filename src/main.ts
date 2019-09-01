@@ -302,7 +302,7 @@ function unhide() {
 }
 
 const img = new Image();
-img.src = "broadway-tower.jpg";
+img.src = "broadway-tower-600px.jpg";
 img.onload = function() {
   const original: HTMLCanvasElement = document.getElementById(
     "original"
