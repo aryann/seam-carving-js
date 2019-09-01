@@ -13,6 +13,7 @@
     "gulp": "~4.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-connect": "^5.7.0",
+    "gulp-htmlmin": "^5.0.1",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
