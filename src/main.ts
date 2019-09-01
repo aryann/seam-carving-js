@@ -1,4 +1,5 @@
 import { COLOR_MAP } from "./colormap";
+import { updateParenthesizedType } from "typescript";
 
 const WIDTH = 400;
 const SEAM_FILL_STYLE = "rgba(255, 255, 255, 255)";
@@ -284,6 +285,22 @@ class State {
   }
 }
 
+function unhide() {
+  const loading: HTMLDivElement = document.getElementsByClassName(
+    "loading"
+  )[0] as HTMLDivElement;
+  loading.parentNode.removeChild(loading);
+
+  const mustLoadDivs: HTMLCollectionOf<
+    HTMLDivElement
+  > = document.getElementsByClassName("must-load") as HTMLCollectionOf<
+    HTMLDivElement
+  >;
+  for (let i = 0; i < mustLoadDivs.length; i++) {
+    mustLoadDivs[i].style.display = "block";
+  }
+}
+
 const img = new Image();
 img.src = "broadway-tower.jpg";
 img.onload = function() {
@@ -408,9 +425,5 @@ img.onload = function() {
     upload.click();
   };
 
-  // Now that most of the JavaScript has executed, show the HTML elements.
-  const container: HTMLDivElement = document.getElementsByClassName(
-    "container"
-  )[0] as HTMLDivElement;
-  container.style.display = "block";
+  unhide();
 };
